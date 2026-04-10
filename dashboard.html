@@ -1,0 +1,539 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HERD — Data Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Barlow+Condensed:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --charcoal: #222220;
+    --yellow: #F2D600;
+    --white: #ffffff;
+    --grey: #999999;
+    --dark-card: #2a2a28;
+    --dark-input: #333331;
+    --red: #e05252;
+    --black: #000000;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--charcoal); color: var(--white); font-family: 'Barlow Condensed', sans-serif; min-height: 100vh; }
+  #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 32px; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 80px; font-weight: 700; color: var(--yellow); letter-spacing: 12px; margin-bottom: 8px; }
+  .tagline { font-size: 12px; letter-spacing: 4px; color: var(--grey); margin-bottom: 48px; }
+  .login-box { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
+  .login-tabs { display: flex; gap: 8px; margin-bottom: 8px; }
+  .tab-btn { flex: 1; padding: 10px; border: 1px solid rgba(242,214,0,0.3); background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+  .tab-btn.active { background: var(--yellow); border-color: var(--yellow); color: var(--charcoal); }
+  input { width: 100%; background: rgba(255,255,255,0.06); color: var(--white); padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 15px; font-family: 'Barlow Condensed', sans-serif; outline: none; transition: border-color 0.2s; }
+  input:focus { border-color: rgba(242,214,0,0.5); }
+  input::placeholder { color: var(--grey); }
+  .btn-primary { width: 100%; background: rgba(242,214,0,0.9); color: var(--charcoal); border: none; padding: 14px; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: opacity 0.2s; }
+  .btn-primary:hover { opacity: 0.85; }
+  .error-msg { color: var(--red); font-size: 13px; letter-spacing: 1px; text-align: center; min-height: 20px; }
+  #app { display: none; min-height: 100vh; }
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; background: var(--charcoal); z-index: 100; }
+  .header-logo { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--yellow); letter-spacing: 8px; }
+  .header-nav { display: flex; gap: 4px; }
+  .nav-btn { padding: 8px 20px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 3px; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+  .nav-btn:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+  .nav-btn.active { background: var(--yellow); color: var(--charcoal); border-color: var(--yellow); }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .user-badge { font-size: 11px; letter-spacing: 2px; color: var(--grey); }
+  .sign-out-btn { background: none; border: none; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; cursor: pointer; transition: color 0.2s; }
+  .sign-out-btn:hover { color: var(--white); }
+  .screen { display: none; padding: 40px; max-width: 1100px; margin: 0 auto; }
+  .screen.active { display: block; }
+  .screen-title { font-size: 11px; font-weight: 700; letter-spacing: 4px; color: var(--yellow); margin-bottom: 32px; }
+  .filter-section { background: var(--dark-card); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .filter-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--yellow); margin-bottom: 12px; display: block; }
+  .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .chip { padding: 8px 16px; border: 1px solid var(--grey); border-radius: 6px; background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .chip:hover { border-color: var(--white); color: var(--white); }
+  .chip.selected { background: var(--yellow); border-color: var(--yellow); color: var(--charcoal); }
+  .question-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; margin-bottom: 24px; }
+  .question-scroll::-webkit-scrollbar { display: none; }
+  .q-chip { white-space: nowrap; padding: 8px 16px; border: 1px solid var(--grey); border-radius: 6px; background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
+  .q-chip.selected { background: var(--yellow); border-color: var(--yellow); color: var(--charcoal); }
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .results-grid { grid-template-columns: 1fr; } }
+  .result-card { background: var(--dark-card); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
+  .result-card.highlighted { border-color: var(--yellow); }
+  .result-card-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--yellow); margin-bottom: 4px; }
+  .result-card-total { font-size: 12px; color: var(--grey); letter-spacing: 1px; margin-bottom: 16px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; width: 36px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 26px; background: var(--dark-input); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .bar-yes { background: var(--yellow); }
+  .bar-no { background: #555553; }
+  .bar-pct { font-size: 13px; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; }
+  .clear-btn { padding: 8px 14px; border: 1px solid rgba(242,214,0,0.4); border-radius: 6px; background: transparent; color: var(--yellow); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; cursor: pointer; margin-top: 8px; }
+  .month-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+  .month-btn { padding: 10px 20px; background: var(--yellow); color: var(--charcoal); border: none; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: opacity 0.2s; opacity: 0.5; }
+  .month-btn:hover { opacity: 0.8; }
+  .month-btn.active { opacity: 1; }
+  .archive-list { display: flex; flex-direction: column; gap: 16px; }
+  .archive-card { background: var(--dark-card); border-radius: 12px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: border-color 0.2s; }
+  .archive-card:hover { border-color: rgba(242,214,0,0.3); }
+  .archive-card.expanded { border-color: var(--yellow); }
+  .archive-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .archive-date { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--yellow); margin-bottom: 6px; }
+  .archive-question { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--white); line-height: 1.4; }
+  .archive-votes { font-size: 12px; color: var(--grey); letter-spacing: 1px; white-space: nowrap; margin-top: 4px; }
+  .archive-expand { background: none; border: none; color: var(--grey); font-size: 20px; cursor: pointer; flex-shrink: 0; transition: color 0.2s; }
+  .archive-expand:hover { color: var(--yellow); }
+  .archive-detail { display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .archive-detail.open { display: block; }
+  .archive-summary-bars { margin-bottom: 20px; }
+  .demo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 16px; }
+  .demo-mini-card { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 14px; border: 1px solid rgba(255,255,255,0.06); }
+  .demo-mini-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--yellow); margin-bottom: 10px; }
+  .demo-mini-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .demo-mini-label { font-size: 11px; color: var(--grey); width: 100px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .demo-mini-track { flex: 1; height: 16px; background: var(--dark-input); border-radius: 3px; overflow: hidden; }
+  .demo-mini-fill-yes { height: 100%; background: var(--yellow); border-radius: 3px; }
+  .demo-mini-fill-no { height: 100%; background: #555553; border-radius: 3px; }
+  .demo-mini-pct { font-size: 11px; font-weight: 700; width: 30px; text-align: right; flex-shrink: 0; }
+  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 800px) { .admin-grid { grid-template-columns: 1fr; } }
+  .admin-card { background: var(--dark-card); border-radius: 12px; padding: 24px; }
+  .admin-card-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--yellow); margin-bottom: 20px; }
+  textarea { width: 100%; background: rgba(255,255,255,0.06); color: var(--white); padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 15px; font-family: 'Barlow Condensed', sans-serif; outline: none; resize: vertical; min-height: 100px; margin-bottom: 12px; transition: border-color 0.2s; }
+  textarea:focus { border-color: rgba(242,214,0,0.5); }
+  textarea::placeholder { color: var(--grey); }
+  .upcoming-item { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.06); }
+  .upcoming-date { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--yellow); margin-bottom: 6px; }
+  .upcoming-text { font-size: 14px; color: var(--white); line-height: 1.4; }
+  .spinner { display: flex; align-items: center; justify-content: center; padding: 60px; color: var(--grey); font-size: 13px; letter-spacing: 2px; }
+  .no-data { text-align: center; color: var(--grey); font-size: 14px; padding: 40px; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="logo">HERD</div>
+  <div class="tagline">DATA DASHBOARD</div>
+  <div class="login-box">
+    <div class="login-tabs">
+      <button class="tab-btn active" onclick="setLoginType('client')">CLIENT</button>
+      <button class="tab-btn" onclick="setLoginType('admin')">ADMIN</button>
+    </div>
+    <div id="client-fields">
+      <input type="email" id="email" placeholder="Email address" autocomplete="email">
+      <input type="password" id="password" placeholder="Password">
+    </div>
+    <div id="admin-fields" style="display:none">
+      <input type="password" id="admin-pw" placeholder="Admin password">
+    </div>
+    <div class="error-msg" id="login-error"></div>
+    <button class="btn-primary" onclick="handleLogin()">ENTER</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <div class="header-logo">HERD</div>
+    <div class="header-nav" id="nav-buttons"></div>
+    <div class="header-right">
+      <span class="user-badge" id="user-badge"></span>
+      <button class="sign-out-btn" onclick="signOut()">SIGN OUT</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-demographics">
+    <div class="screen-title">DEMOGRAPHICS</div>
+    <div class="filter-section">
+      <span class="filter-label">SELECT QUESTION</span>
+      <div class="question-scroll" id="question-chips"></div>
+      <span class="filter-label">GENDER</span>
+      <div class="chip-grid" id="filter-gender"></div>
+      <span class="filter-label">AGE</span>
+      <div class="chip-grid" id="filter-age"></div>
+      <span class="filter-label">REGION</span>
+      <div class="chip-grid" id="filter-region"></div>
+      <span class="filter-label">ETHNICITY</span>
+      <div class="chip-grid" id="filter-ethnicity"></div>
+      <span class="filter-label">RELIGION</span>
+      <div class="chip-grid" id="filter-religion"></div>
+      <span class="filter-label">SEXUALITY</span>
+      <div class="chip-grid" id="filter-sexuality"></div>
+      <button class="clear-btn" onclick="clearFilters()">✕ CLEAR ALL FILTERS</button>
+    </div>
+    <div class="results-grid" id="demo-results"></div>
+  </div>
+
+  <div class="screen" id="screen-archive">
+    <div class="screen-title">ARCHIVE</div>
+    <div class="month-buttons" id="month-buttons"></div>
+    <div class="archive-list" id="archive-list"></div>
+  </div>
+
+  <div class="screen" id="screen-admin">
+    <div class="screen-title">QUESTION MANAGER</div>
+    <div class="admin-grid">
+      <div class="admin-card">
+        <div class="admin-card-title">NEW QUESTION</div>
+        <textarea id="new-question" placeholder="Type your question here..."></textarea>
+        <input type="date" id="new-date" style="margin-bottom:12px">
+        <button class="btn-primary" onclick="addQuestion()">ADD QUESTION</button>
+        <div class="error-msg" id="admin-error"></div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-title">UPCOMING QUESTIONS</div>
+        <div id="upcoming-list"><div class="spinner">LOADING...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://eyzsnyuduokbanmxtbjj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5enNueXVkdW9rYmFubXh0YmpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTYxMjMsImV4cCI6MjA5MDE5MjEyM30.ZaKTMtYwlhXc_yfo-Fuwh0O0EZqpRvf_S3bButD5Lys';
+const ADMIN_PASSWORD = 'Reiss0707!!';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false } });
+
+const GENDERS = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
+const AGES = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+const REGIONS = ['London', 'South East', 'South West', 'East of England', 'Midlands', 'North of England', 'Scotland', 'Wales', 'Northern Ireland'];
+const ETHNICITIES = ['White British', 'European', 'Asian or Asian British', 'Black or Black British', 'Other', 'Prefer not to say'];
+const RELIGIONS = ['No religion', 'Christian', 'Muslim', 'Hindu', 'Sikh', 'Jewish', 'Buddhist', 'Other', 'Prefer not to say'];
+const SEXUALITIES = ['Heterosexual', 'Gay or Lesbian', 'Bisexual', 'Prefer not to say'];
+
+let currentUser = null;
+let isAdmin = false;
+let allQuestions = [];
+let selectedQuestionId = null;
+let allVotes = [];
+let filters = { gender: null, age: null, region: null, ethnicity: null, religion: null, sexuality: null };
+let loginType = 'client';
+let archiveQuestions = [];
+let archiveVotes = [];
+let selectedMonth = null;
+
+function setLoginType(type) {
+  loginType = type;
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && type === 'client') || (i === 1 && type === 'admin'));
+  });
+  document.getElementById('client-fields').style.display = type === 'client' ? 'block' : 'none';
+  document.getElementById('admin-fields').style.display = type === 'admin' ? 'block' : 'none';
+  document.getElementById('login-error').textContent = '';
+}
+
+async function handleLogin() {
+  const err = document.getElementById('login-error');
+  err.textContent = '';
+  if (loginType === 'admin') {
+    const pw = document.getElementById('admin-pw').value;
+    if (pw === ADMIN_PASSWORD) { isAdmin = true; showApp('ADMIN'); }
+    else err.textContent = 'Incorrect password.';
+    return;
+  }
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { err.textContent = 'Please enter email and password.'; return; }
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (error) { err.textContent = error.message; return; }
+  currentUser = data.user;
+  isAdmin = false;
+  showApp(email);
+}
+
+function showApp(label) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-badge').textContent = isAdmin ? 'ADMIN' : label.toUpperCase();
+  const nav = document.getElementById('nav-buttons');
+  nav.innerHTML = '';
+  const screens = isAdmin
+    ? [['demographics', 'DEMOGRAPHICS'], ['admin', 'QUESTIONS']]
+    : [['demographics', 'DEMOGRAPHICS'], ['archive', 'ARCHIVE']];
+  screens.forEach(([id, label], i) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = label;
+    btn.onclick = () => showScreen(id);
+    nav.appendChild(btn);
+  });
+  showScreen('demographics');
+  loadQuestions();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === (id === 'demographics' ? 'DEMOGRAPHICS' : id === 'archive' ? 'ARCHIVE' : 'QUESTIONS'));
+  });
+  document.getElementById('screen-' + id).classList.add('active');
+  if (id === 'archive') loadArchive();
+  if (id === 'admin') loadUpcoming();
+}
+
+async function loadQuestions() {
+  const { data } = await db.from('questions').select('*').order('active_date', { ascending: false });
+  allQuestions = data || [];
+  buildQuestionChips();
+  if (allQuestions.length > 0) selectQuestion(allQuestions[0].id);
+}
+
+function buildQuestionChips() {
+  const el = document.getElementById('question-chips');
+  el.innerHTML = '';
+  allQuestions.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'q-chip' + (q.id === selectedQuestionId ? ' selected' : '');
+    btn.textContent = formatDate(q.active_date);
+    btn.title = q.question_text;
+    btn.onclick = () => selectQuestion(q.id);
+    el.appendChild(btn);
+  });
+  buildFilterChips('filter-gender', GENDERS, 'gender');
+  buildFilterChips('filter-age', AGES, 'age');
+  buildFilterChips('filter-region', REGIONS, 'region');
+  buildFilterChips('filter-ethnicity', ETHNICITIES, 'ethnicity');
+  buildFilterChips('filter-religion', RELIGIONS, 'religion');
+  buildFilterChips('filter-sexuality', SEXUALITIES, 'sexuality');
+}
+
+function buildFilterChips(containerId, options, filterKey) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (filters[filterKey] === opt ? ' selected' : '');
+    btn.textContent = opt;
+    btn.onclick = () => {
+      filters[filterKey] = filters[filterKey] === opt ? null : opt;
+      buildFilterChips(containerId, options, filterKey);
+      renderDemoResults();
+    };
+    el.appendChild(btn);
+  });
+}
+
+async function selectQuestion(id) {
+  selectedQuestionId = id;
+  document.querySelectorAll('.q-chip').forEach((c, i) => {
+    c.classList.toggle('selected', allQuestions[i].id === id);
+  });
+  const { data } = await db.from('votes_with_profiles').select('vote, age_range, gender, region, ethnicity, religion, sexuality').eq('question_id', id);
+  allVotes = data || [];
+  renderDemoResults();
+}
+
+function renderDemoResults() {
+  const el = document.getElementById('demo-results');
+  const overall = calcResults(allVotes);
+  const filtered = calcFilteredResults();
+  const hasFilters = Object.values(filters).some(Boolean);
+  el.innerHTML = '';
+  el.appendChild(makeResultCard('ALL VOTERS', overall, false));
+  if (hasFilters) {
+    const label = Object.values(filters).filter(Boolean).join(' · ').toUpperCase();
+    el.appendChild(makeResultCard(label, filtered, true));
+  }
+}
+
+function makeResultCard(title, results, highlighted) {
+  const card = document.createElement('div');
+  card.className = 'result-card' + (highlighted ? ' highlighted' : '');
+  const pctYes = pct(results.yes, results.total);
+  const pctNo = pct(results.no, results.total);
+  card.innerHTML = `
+    <div class="result-card-title">${title}</div>
+    <div class="result-card-total">${results.total} vote${results.total !== 1 ? 's' : ''}</div>
+    ${results.total === 0 ? '<div style="color:var(--grey);font-size:13px">No votes match this filter.</div>' : `
+    <div class="bar-row"><div class="bar-label">YES</div><div class="bar-track"><div class="bar-fill bar-yes" style="width:${pctYes}%"></div></div><div class="bar-pct">${pctYes}%</div></div>
+    <div class="bar-row"><div class="bar-label">NO</div><div class="bar-track"><div class="bar-fill bar-no" style="width:${pctNo}%"></div></div><div class="bar-pct">${pctNo}%</div></div>`}`;
+  return card;
+}
+
+function calcFilteredResults() {
+  let v = allVotes;
+  if (filters.gender) v = v.filter(x => x.gender === filters.gender);
+  if (filters.age) v = v.filter(x => x.age_range === filters.age);
+  if (filters.region) v = v.filter(x => x.region === filters.region);
+  if (filters.ethnicity) v = v.filter(x => x.ethnicity === filters.ethnicity);
+  if (filters.religion) v = v.filter(x => x.religion === filters.religion);
+  if (filters.sexuality) v = v.filter(x => x.sexuality === filters.sexuality);
+  return calcResults(v);
+}
+
+function calcResults(votes) {
+  const yes = votes.filter(v => v.vote === 'yes').length;
+  const no = votes.filter(v => v.vote === 'no').length;
+  return { yes, no, total: votes.length };
+}
+
+function clearFilters() {
+  filters = { gender: null, age: null, region: null, ethnicity: null, religion: null, sexuality: null };
+  buildFilterChips('filter-gender', GENDERS, 'gender');
+  buildFilterChips('filter-age', AGES, 'age');
+  buildFilterChips('filter-region', REGIONS, 'region');
+  buildFilterChips('filter-ethnicity', ETHNICITIES, 'ethnicity');
+  buildFilterChips('filter-religion', RELIGIONS, 'religion');
+  buildFilterChips('filter-sexuality', SEXUALITIES, 'sexuality');
+  renderDemoResults();
+}
+
+async function loadArchive() {
+  const el = document.getElementById('archive-list');
+  const mb = document.getElementById('month-buttons');
+  el.innerHTML = '<div class="spinner">LOADING...</div>';
+  mb.innerHTML = '';
+  const { data: questions } = await db.from('questions').select('*').order('active_date', { ascending: false });
+  if (!questions || questions.length === 0) { el.innerHTML = '<div class="no-data">No questions yet.</div>'; return; }
+  const { data: votes } = await db.from('votes_with_profiles').select('question_id, vote, age_range, gender, region, ethnicity, religion, sexuality');
+  archiveQuestions = questions;
+  archiveVotes = votes || [];
+  const months = {};
+  questions.forEach(q => {
+    const d = new Date(q.active_date + 'T12:00:00');
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!months[key]) months[key] = [];
+    months[key].push(q);
+  });
+  const currentYear = new Date().getFullYear();
+  for (let m = 1; m <= 12; m++) {
+    const key = `${currentYear}-${String(m).padStart(2, '0')}`;
+    if (!months[key]) months[key] = [];
+  }
+  const monthKeys = Object.keys(months).sort((a, b) => b.localeCompare(a));
+  monthKeys.forEach((key, i) => {
+    const [year, month] = key.split('-');
+    const label = new Date(parseInt(year), parseInt(month) - 1, 1)
+      .toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }).toUpperCase();
+    const btn = document.createElement('button');
+    btn.className = 'month-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = label;
+    btn.dataset.key = key;
+    btn.onclick = () => selectMonth(key, months);
+    mb.appendChild(btn);
+  });
+  if (monthKeys.length > 0) { selectedMonth = monthKeys[0]; renderArchiveMonth(months); }
+}
+
+function selectMonth(key, months) {
+  selectedMonth = key;
+  document.querySelectorAll('.month-btn').forEach(b => b.classList.toggle('active', b.dataset.key === key));
+  renderArchiveMonth(months);
+}
+
+function renderArchiveMonth(months) {
+  const el = document.getElementById('archive-list');
+  el.innerHTML = '';
+  const questions = months[selectedMonth] || [];
+  if (questions.length === 0) { el.innerHTML = '<div class="no-data">No questions for this month yet.</div>'; return; }
+  questions.forEach(q => {
+    const qVotes = archiveVotes.filter(v => v.question_id === q.id);
+    el.appendChild(buildArchiveCard(q, qVotes));
+  });
+}
+
+function buildArchiveCard(q, votes) {
+  const overall = calcResults(votes);
+  const card = document.createElement('div');
+  card.className = 'archive-card';
+  const pctYes = pct(overall.yes, overall.total);
+  const pctNo = pct(overall.no, overall.total);
+  card.innerHTML = `
+    <div class="archive-card-header">
+      <div>
+        <div class="archive-date">${formatDate(q.active_date).toUpperCase()}</div>
+        <div class="archive-question">${q.question_text}</div>
+        <div class="archive-votes">${overall.total} vote${overall.total !== 1 ? 's' : ''}</div>
+      </div>
+      <button class="archive-expand">+</button>
+    </div>
+    <div class="archive-detail">
+      <div class="archive-summary-bars">
+        <div class="bar-row"><div class="bar-label">YES</div><div class="bar-track"><div class="bar-fill bar-yes" style="width:${pctYes}%"></div></div><div class="bar-pct">${pctYes}%</div></div>
+        <div class="bar-row"><div class="bar-label">NO</div><div class="bar-track"><div class="bar-fill bar-no" style="width:${pctNo}%"></div></div><div class="bar-pct">${pctNo}%</div></div>
+      </div>
+      ${buildDemoBreakdown(votes)}
+    </div>`;
+  const expandBtn = card.querySelector('.archive-expand');
+  const detail = card.querySelector('.archive-detail');
+  expandBtn.onclick = () => {
+    const open = detail.classList.toggle('open');
+    card.classList.toggle('expanded', open);
+    expandBtn.textContent = open ? '−' : '+';
+  };
+  return card;
+}
+
+function buildDemoBreakdown(votes) {
+  if (votes.length === 0) return '';
+  const categories = [
+    { label: 'GENDER', key: 'gender', options: GENDERS },
+    { label: 'AGE', key: 'age_range', options: AGES },
+    { label: 'REGION', key: 'region', options: REGIONS },
+    { label: 'ETHNICITY', key: 'ethnicity', options: ETHNICITIES },
+    { label: 'RELIGION', key: 'religion', options: RELIGIONS },
+    { label: 'SEXUALITY', key: 'sexuality', options: SEXUALITIES },
+  ];
+  let html = '<div class="demo-grid">';
+  categories.forEach(({ label, key, options }) => {
+    html += `<div class="demo-mini-card"><div class="demo-mini-title">${label}</div>`;
+    options.forEach(opt => {
+      const subset = votes.filter(v => v[key] === opt);
+      if (subset.length === 0) return;
+      const yPct = pct(subset.filter(v => v.vote === 'yes').length, subset.length);
+      html += `<div class="demo-mini-bar-row"><div class="demo-mini-label" title="${opt}">${opt}</div><div class="demo-mini-track"><div class="demo-mini-fill-yes" style="width:${yPct}%"></div></div><div class="demo-mini-pct">${yPct}%</div></div>`;
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+async function loadUpcoming() {
+  const today = new Date().toISOString().split('T')[0];
+  const { data } = await db.from('questions').select('*').gte('active_date', today).order('active_date', { ascending: true });
+  const el = document.getElementById('upcoming-list');
+  if (!data || data.length === 0) { el.innerHTML = '<div class="no-data">No upcoming questions.</div>'; return; }
+  el.innerHTML = data.map(q => `<div class="upcoming-item"><div class="upcoming-date">${formatDate(q.active_date).toUpperCase()}</div><div class="upcoming-text">${q.question_text}</div></div>`).join('');
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('new-date').value = tomorrow.toISOString().split('T')[0];
+}
+
+async function addQuestion() {
+  const text = document.getElementById('new-question').value.trim();
+  const date = document.getElementById('new-date').value;
+  const err = document.getElementById('admin-error');
+  err.textContent = '';
+  if (!text) { err.textContent = 'Please enter a question.'; return; }
+  if (!date) { err.textContent = 'Please select a date.'; return; }
+  const { error } = await db.from('questions').insert({ question_text: text, active_date: date });
+  if (error) { err.textContent = error.message; return; }
+  document.getElementById('new-question').value = '';
+  loadUpcoming();
+}
+
+function pct(val, total) { return total > 0 ? Math.round((val / total) * 100) : 0; }
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+async function signOut() {
+  await db.auth.signOut();
+  currentUser = null; isAdmin = false; allQuestions = []; allVotes = [];
+  filters = { gender: null, age: null, region: null, ethnicity: null, religion: null, sexuality: null };
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('email').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('admin-pw').value = '';
+  document.getElementById('login-error').textContent = '';
+  setLoginType('client');
+}
+</script>
+</body>
+</html>
