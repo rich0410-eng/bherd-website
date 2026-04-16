@@ -10,7 +10,7 @@
 <style>
   :root {
     --charcoal: #222220;
-    --yellow: #F2D600;
+    --yellow: #f5c842;
     --white: #ffffff;
     --grey: #999999;
     --dark-card: #2a2a28;
@@ -25,12 +25,12 @@
   .tagline { font-size: 12px; letter-spacing: 4px; color: var(--grey); margin-bottom: 48px; }
   .login-box { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
   .login-tabs { display: flex; gap: 8px; margin-bottom: 8px; }
-  .tab-btn { flex: 1; padding: 10px; border: 1px solid rgba(242,214,0,0.3); background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+  .tab-btn { flex: 1; padding: 10px; border: 1px solid rgba(245,200,66,0.3); background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
   .tab-btn.active { background: var(--yellow); border-color: var(--yellow); color: var(--charcoal); }
   input { width: 100%; background: rgba(255,255,255,0.06); color: var(--white); padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 15px; font-family: 'Barlow Condensed', sans-serif; outline: none; transition: border-color 0.2s; }
-  input:focus { border-color: rgba(242,214,0,0.5); }
+  input:focus { border-color: rgba(245,200,66,0.5); }
   input::placeholder { color: var(--grey); }
-  .btn-primary { width: 100%; background: rgba(242,214,0,0.9); color: var(--charcoal); border: none; padding: 14px; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: opacity 0.2s; }
+  .btn-primary { width: 100%; background: rgba(245,200,66,0.9); color: var(--charcoal); border: none; padding: 14px; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: opacity 0.2s; }
   .btn-primary:hover { opacity: 0.85; }
   .error-msg { color: var(--red); font-size: 13px; letter-spacing: 1px; text-align: center; min-height: 20px; }
   #app { display: none; min-height: 100vh; }
@@ -70,14 +70,14 @@
   .bar-yes { background: var(--yellow); }
   .bar-no { background: #555553; }
   .bar-pct { font-size: 13px; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; }
-  .clear-btn { padding: 8px 14px; border: 1px solid rgba(242,214,0,0.4); border-radius: 6px; background: transparent; color: var(--yellow); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; cursor: pointer; margin-top: 8px; }
+  .clear-btn { padding: 8px 14px; border: 1px solid rgba(245,200,66,0.4); border-radius: 6px; background: transparent; color: var(--yellow); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; cursor: pointer; margin-top: 8px; }
   .month-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
   .month-btn { padding: 10px 20px; background: var(--yellow); color: var(--charcoal); border: none; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: opacity 0.2s; opacity: 0.5; }
   .month-btn:hover { opacity: 0.8; }
   .month-btn.active { opacity: 1; }
   .archive-list { display: flex; flex-direction: column; gap: 16px; }
   .archive-card { background: var(--dark-card); border-radius: 12px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: border-color 0.2s; }
-  .archive-card:hover { border-color: rgba(242,214,0,0.3); }
+  .archive-card:hover { border-color: rgba(245,200,66,0.3); }
   .archive-card.expanded { border-color: var(--yellow); }
   .archive-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
   .archive-date { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--yellow); margin-bottom: 6px; }
@@ -102,15 +102,13 @@
   .admin-card { background: var(--dark-card); border-radius: 12px; padding: 24px; }
   .admin-card-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--yellow); margin-bottom: 20px; }
   textarea { width: 100%; background: rgba(255,255,255,0.06); color: var(--white); padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 15px; font-family: 'Barlow Condensed', sans-serif; outline: none; resize: vertical; min-height: 100px; margin-bottom: 12px; transition: border-color 0.2s; }
-  textarea:focus { border-color: rgba(242,214,0,0.5); }
+  textarea:focus { border-color: rgba(245,200,66,0.5); }
   textarea::placeholder { color: var(--grey); }
   .upcoming-item { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.06); }
   .upcoming-date { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--yellow); margin-bottom: 6px; }
   .upcoming-text { font-size: 14px; color: var(--white); line-height: 1.4; }
   .spinner { display: flex; align-items: center; justify-content: center; padding: 60px; color: var(--grey); font-size: 13px; letter-spacing: 2px; }
   .no-data { text-align: center; color: var(--grey); font-size: 14px; padding: 40px; letter-spacing: 1px; }
-  .contact-fab { position: fixed; bottom: 28px; right: 28px; background: var(--yellow); color: var(--charcoal); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; padding: 14px 24px; border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: opacity 0.2s; z-index: 999; }
-  .contact-fab:hover { opacity: 0.85; }
 </style>
 </head>
 <body>
@@ -191,8 +189,6 @@
   </div>
 </div>
 
-<a href="mailto:info@bherd.uk" class="contact-fab">✉ Contact Us</a>
-
 <script>
 const SUPABASE_URL = 'https://eyzsnyuduokbanmxtbjj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5enNueXVkdW9rYmFubXh0YmpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTYxMjMsImV4cCI6MjA5MDE5MjEyM30.ZaKTMtYwlhXc_yfo-Fuwh0O0EZqpRvf_S3bButD5Lys';
@@ -205,7 +201,7 @@ const AGES = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
 const REGIONS = ['London', 'South East', 'South West', 'East of England', 'Midlands', 'North of England', 'Scotland', 'Wales', 'Northern Ireland'];
 const ETHNICITIES = ['White British', 'European', 'Asian or Asian British', 'Black or Black British', 'Other', 'Prefer not to say'];
 const RELIGIONS = ['No religion', 'Christian', 'Muslim', 'Hindu', 'Sikh', 'Jewish', 'Buddhist', 'Other', 'Prefer not to say'];
-const SEXUALITIES = ['Heterosexual', 'Gay or Lesbian', 'Bisexual', 'Prefer not to say'];
+const SEXUALITIES = ['Straight', 'Gay or Lesbian', 'Bisexual', 'Other', 'Prefer not to say'];
 
 let currentUser = null;
 let isAdmin = false;
