@@ -268,6 +268,7 @@ async function loadUserCount() {
   }
 }
 loadUserCount();
+setInterval(loadUserCount, 60000);
 
 function setLoginType(type) {
   loginType = type;
