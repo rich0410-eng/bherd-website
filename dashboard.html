@@ -32,6 +32,10 @@
   input::placeholder { color: var(--grey); }
   .btn-primary { width: 100%; background: rgba(242,214,0,0.9); color: var(--charcoal); border: none; padding: 14px; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: opacity 0.2s; }
   .btn-primary:hover { opacity: 0.85; }
+  .btn-danger { width: 100%; background: transparent; color: var(--red); border: 1px solid var(--red); padding: 10px; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+  .btn-danger:hover { background: var(--red); color: var(--white); }
+  .btn-secondary { width: 100%; background: transparent; color: var(--yellow); border: 1px solid var(--yellow); padding: 10px; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+  .btn-secondary:hover { background: var(--yellow); color: var(--charcoal); }
   .error-msg { color: var(--red); font-size: 13px; letter-spacing: 1px; text-align: center; min-height: 20px; }
   #app { display: none; flex: 1; flex-direction: column; }
   .header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; background: var(--charcoal); z-index: 100; flex-wrap: wrap; gap: 12px; }
@@ -50,13 +54,15 @@
   .filter-section { background: var(--dark-card); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
   .filter-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--yellow); margin-bottom: 12px; display: block; }
   .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .chip { padding: 8px 16px; border: 1px solid var(--grey); border-radius: 6px; background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .chip { padding: 8px 16px; border: 1px solid var(--grey); border-radius: 6px; background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; user-select: none; }
   .chip:hover { border-color: var(--white); color: var(--white); }
   .chip.selected { background: var(--yellow); border-color: var(--yellow); color: var(--charcoal); }
   .question-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; margin-bottom: 24px; }
   .question-scroll::-webkit-scrollbar { display: none; }
   .q-chip { white-space: nowrap; padding: 8px 16px; border: 1px solid var(--grey); border-radius: 6px; background: transparent; color: var(--grey); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
   .q-chip.selected { background: var(--yellow); border-color: var(--yellow); color: var(--charcoal); }
+  .active-filters-bar { background: rgba(242,214,0,0.08); border: 1px solid rgba(242,214,0,0.2); border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; font-size: 13px; color: var(--yellow); letter-spacing: 1px; display: none; }
+  .active-filters-bar.visible { display: block; }
   .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 700px) { .results-grid { grid-template-columns: 1fr; } }
   .result-card { background: var(--dark-card); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
@@ -76,10 +82,10 @@
   .month-btn:hover { opacity: 0.8; }
   .month-btn.active { opacity: 1; }
   .archive-list { display: flex; flex-direction: column; gap: 16px; }
-  .archive-card { background: var(--dark-card); border-radius: 12px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: border-color 0.2s; }
+  .archive-card { background: var(--dark-card); border-radius: 12px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); transition: border-color 0.2s; }
   .archive-card:hover { border-color: rgba(242,214,0,0.3); }
   .archive-card.expanded { border-color: var(--yellow); }
-  .archive-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .archive-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; cursor: pointer; }
   .archive-date { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--yellow); margin-bottom: 6px; }
   .archive-question { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--white); line-height: 1.4; }
   .archive-votes { font-size: 12px; color: var(--grey); letter-spacing: 1px; white-space: nowrap; margin-top: 4px; }
@@ -105,12 +111,21 @@
   textarea:focus { border-color: rgba(242,214,0,0.5); }
   textarea::placeholder { color: var(--grey); }
   .upcoming-item { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.06); }
+  .upcoming-item.editing { border-color: rgba(242,214,0,0.4); }
   .upcoming-date { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--yellow); margin-bottom: 6px; }
-  .upcoming-text { font-size: 14px; color: var(--white); line-height: 1.4; }
+  .upcoming-text { font-size: 14px; color: var(--white); line-height: 1.4; margin-bottom: 10px; }
+  .upcoming-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .upcoming-actions button { flex: 1; padding: 7px; border-radius: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .btn-edit { background: transparent; color: var(--yellow); border: 1px solid var(--yellow); }
+  .btn-edit:hover { background: var(--yellow); color: var(--charcoal); }
+  .btn-del { background: transparent; color: var(--red); border: 1px solid var(--red); }
+  .btn-del:hover { background: var(--red); color: var(--white); }
+  .btn-save { background: var(--yellow); color: var(--charcoal); border: 1px solid var(--yellow); }
+  .btn-cancel { background: transparent; color: var(--grey); border: 1px solid var(--grey); }
   .spinner { display: flex; align-items: center; justify-content: center; padding: 60px; color: var(--grey); font-size: 13px; letter-spacing: 2px; }
   .no-data { text-align: center; color: var(--grey); font-size: 14px; padding: 40px; letter-spacing: 1px; }
 
-  /* FOOTER - sticky to bottom of viewport */
+  /* FOOTER */
   .site-footer {
     position: sticky;
     bottom: 0;
@@ -200,6 +215,7 @@
       <div class="chip-grid" id="filter-sexuality"></div>
       <button class="clear-btn" onclick="clearFilters()">✕ CLEAR ALL FILTERS</button>
     </div>
+    <div class="active-filters-bar" id="active-filters-bar"></div>
     <div class="results-grid" id="demo-results"></div>
   </div>
 
@@ -254,13 +270,16 @@ let isAdmin = false;
 let allQuestions = [];
 let selectedQuestionId = null;
 let allVotes = [];
-let filters = { gender: null, age: null, region: null, ethnicity: null, religion: null, sexuality: null };
+
+// Multi-select filters — arrays not single values
+let filters = { gender: [], age: [], region: [], ethnicity: [], religion: [], sexuality: [] };
+
 let loginType = 'client';
 let archiveQuestions = [];
 let archiveVotes = [];
 let selectedMonth = null;
 
-// Load user count on page load
+// User count — load and auto-refresh every 60s
 async function loadUserCount() {
   const { count, error } = await db.from('profiles').select('*', { count: 'exact', head: true });
   if (!error && count !== null) {
@@ -333,6 +352,7 @@ async function loadQuestions() {
   const { data } = await db.from('questions').select('*').order('active_date', { ascending: false });
   allQuestions = data || [];
   buildQuestionChips();
+  buildAllFilterChips();
   if (allQuestions.length > 0) selectQuestion(allQuestions[0].id);
 }
 
@@ -347,6 +367,9 @@ function buildQuestionChips() {
     btn.onclick = () => selectQuestion(q.id);
     el.appendChild(btn);
   });
+}
+
+function buildAllFilterChips() {
   buildFilterChips('filter-gender', GENDERS, 'gender');
   buildFilterChips('filter-age', AGES, 'age');
   buildFilterChips('filter-region', REGIONS, 'region');
@@ -360,15 +383,41 @@ function buildFilterChips(containerId, options, filterKey) {
   el.innerHTML = '';
   options.forEach(opt => {
     const btn = document.createElement('button');
-    btn.className = 'chip' + (filters[filterKey] === opt ? ' selected' : '');
+    const isSelected = filters[filterKey].includes(opt);
+    btn.className = 'chip' + (isSelected ? ' selected' : '');
     btn.textContent = opt;
     btn.onclick = () => {
-      filters[filterKey] = filters[filterKey] === opt ? null : opt;
+      const idx = filters[filterKey].indexOf(opt);
+      if (idx === -1) {
+        filters[filterKey].push(opt);
+      } else {
+        filters[filterKey].splice(idx, 1);
+      }
       buildFilterChips(containerId, options, filterKey);
+      updateActiveFiltersBar();
       renderDemoResults();
     };
     el.appendChild(btn);
   });
+}
+
+function updateActiveFiltersBar() {
+  const bar = document.getElementById('active-filters-bar');
+  const all = [
+    ...filters.gender,
+    ...filters.age,
+    ...filters.region,
+    ...filters.ethnicity,
+    ...filters.religion,
+    ...filters.sexuality,
+  ];
+  if (all.length === 0) {
+    bar.classList.remove('visible');
+    bar.textContent = '';
+  } else {
+    bar.classList.add('visible');
+    bar.textContent = 'FILTERING: ' + all.join(' · ');
+  }
 }
 
 async function selectQuestion(id) {
@@ -376,7 +425,9 @@ async function selectQuestion(id) {
   document.querySelectorAll('.q-chip').forEach((c, i) => {
     c.classList.toggle('selected', allQuestions[i].id === id);
   });
-  const { data } = await db.from('votes_with_profiles').select('vote, age_range, gender, region, ethnicity, religion, sexuality').eq('question_id', id);
+  const { data } = await db.from('votes_with_profiles')
+    .select('vote, age_range, gender, region, ethnicity, religion, sexuality')
+    .eq('question_id', id);
   allVotes = data || [];
   renderDemoResults();
 }
@@ -385,11 +436,18 @@ function renderDemoResults() {
   const el = document.getElementById('demo-results');
   const overall = calcResults(allVotes);
   const filtered = calcFilteredResults();
-  const hasFilters = Object.values(filters).some(Boolean);
+  const hasFilters = Object.values(filters).some(arr => arr.length > 0);
   el.innerHTML = '';
   el.appendChild(makeResultCard('ALL VOTERS', overall, false));
   if (hasFilters) {
-    const label = Object.values(filters).filter(Boolean).join(' · ').toUpperCase();
+    const label = [
+      ...filters.gender,
+      ...filters.age,
+      ...filters.region,
+      ...filters.ethnicity,
+      ...filters.religion,
+      ...filters.sexuality,
+    ].join(' · ').toUpperCase();
     el.appendChild(makeResultCard(label, filtered, true));
   }
 }
@@ -410,12 +468,12 @@ function makeResultCard(title, results, highlighted) {
 
 function calcFilteredResults() {
   let v = allVotes;
-  if (filters.gender) v = v.filter(x => x.gender === filters.gender);
-  if (filters.age) v = v.filter(x => x.age_range === filters.age);
-  if (filters.region) v = v.filter(x => x.region === filters.region);
-  if (filters.ethnicity) v = v.filter(x => x.ethnicity === filters.ethnicity);
-  if (filters.religion) v = v.filter(x => x.religion === filters.religion);
-  if (filters.sexuality) v = v.filter(x => x.sexuality === filters.sexuality);
+  if (filters.gender.length > 0) v = v.filter(x => filters.gender.includes(x.gender));
+  if (filters.age.length > 0) v = v.filter(x => filters.age.includes(x.age_range));
+  if (filters.region.length > 0) v = v.filter(x => filters.region.includes(x.region));
+  if (filters.ethnicity.length > 0) v = v.filter(x => filters.ethnicity.includes(x.ethnicity));
+  if (filters.religion.length > 0) v = v.filter(x => filters.religion.includes(x.religion));
+  if (filters.sexuality.length > 0) v = v.filter(x => filters.sexuality.includes(x.sexuality));
   return calcResults(v);
 }
 
@@ -426,13 +484,9 @@ function calcResults(votes) {
 }
 
 function clearFilters() {
-  filters = { gender: null, age: null, region: null, ethnicity: null, religion: null, sexuality: null };
-  buildFilterChips('filter-gender', GENDERS, 'gender');
-  buildFilterChips('filter-age', AGES, 'age');
-  buildFilterChips('filter-region', REGIONS, 'region');
-  buildFilterChips('filter-ethnicity', ETHNICITIES, 'ethnicity');
-  buildFilterChips('filter-religion', RELIGIONS, 'religion');
-  buildFilterChips('filter-sexuality', SEXUALITIES, 'sexuality');
+  filters = { gender: [], age: [], region: [], ethnicity: [], religion: [], sexuality: [] };
+  buildAllFilterChips();
+  updateActiveFiltersBar();
   renderDemoResults();
 }
 
@@ -547,15 +601,64 @@ function buildDemoBreakdown(votes) {
   return html;
 }
 
+// ── QUESTION MANAGER WITH EDIT/DELETE ─────────────────────────────────────
 async function loadUpcoming() {
   const today = new Date().toISOString().split('T')[0];
   const { data } = await db.from('questions').select('*').gte('active_date', today).order('active_date', { ascending: true });
   const el = document.getElementById('upcoming-list');
   if (!data || data.length === 0) { el.innerHTML = '<div class="no-data">No upcoming questions.</div>'; return; }
-  el.innerHTML = data.map(q => `<div class="upcoming-item"><div class="upcoming-date">${formatDate(q.active_date).toUpperCase()}</div><div class="upcoming-text">${q.question_text}</div></div>`).join('');
+  el.innerHTML = '';
+  data.forEach(q => el.appendChild(buildUpcomingItem(q)));
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   document.getElementById('new-date').value = tomorrow.toISOString().split('T')[0];
+}
+
+function buildUpcomingItem(q) {
+  const item = document.createElement('div');
+  item.className = 'upcoming-item';
+  item.dataset.id = q.id;
+  renderUpcomingView(item, q);
+  return item;
+}
+
+function renderUpcomingView(item, q) {
+  item.classList.remove('editing');
+  item.innerHTML = `
+    <div class="upcoming-date">${formatDate(q.active_date).toUpperCase()}</div>
+    <div class="upcoming-text">${q.question_text}</div>
+    <div class="upcoming-actions">
+      <button class="upcoming-actions button btn-edit" onclick="startEdit(this, '${q.id}', \`${q.question_text.replace(/`/g, "'")}\`, '${q.active_date}')">EDIT</button>
+      <button class="upcoming-actions button btn-del" onclick="deleteQuestion('${q.id}', this)">DELETE</button>
+    </div>`;
+}
+
+function startEdit(btn, id, text, date) {
+  const item = btn.closest('.upcoming-item');
+  item.classList.add('editing');
+  item.innerHTML = `
+    <textarea id="edit-text-${id}" style="min-height:80px;margin-bottom:8px">${text}</textarea>
+    <input type="date" id="edit-date-${id}" value="${date}" style="margin-bottom:8px">
+    <div class="upcoming-actions">
+      <button class="upcoming-actions button btn-save" onclick="saveEdit('${id}')">SAVE</button>
+      <button class="upcoming-actions button btn-cancel" onclick="loadUpcoming()">CANCEL</button>
+    </div>`;
+}
+
+async function saveEdit(id) {
+  const text = document.getElementById(`edit-text-${id}`).value.trim();
+  const date = document.getElementById(`edit-date-${id}`).value;
+  if (!text || !date) return;
+  const { error } = await db.from('questions').update({ question_text: text, active_date: date }).eq('id', id);
+  if (error) { alert('Error: ' + error.message); return; }
+  loadUpcoming();
+}
+
+async function deleteQuestion(id, btn) {
+  if (!confirm('Delete this question? This cannot be undone.')) return;
+  const { error } = await db.from('questions').delete().eq('id', id);
+  if (error) { alert('Error: ' + error.message); return; }
+  loadUpcoming();
 }
 
 async function addQuestion() {
@@ -581,7 +684,7 @@ function formatDate(dateStr) {
 async function signOut() {
   await db.auth.signOut();
   currentUser = null; isAdmin = false; allQuestions = []; allVotes = [];
-  filters = { gender: null, age: null, region: null, ethnicity: null, religion: null, sexuality: null };
+  filters = { gender: [], age: [], region: [], ethnicity: [], religion: [], sexuality: [] };
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('email').value = '';
