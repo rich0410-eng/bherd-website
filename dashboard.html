@@ -728,9 +728,9 @@ const SUPABASE_URL = 'https://eyzsnyuduokbanmxtbjj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5enNueXVkdW9rYmFubXh0YmpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTYxMjMsImV4cCI6MjA5MDE5MjEyM30.ZaKTMtYwlhXc_yfo-Fuwh0O0EZqpRvf_S3bButD5Lys';
 const ADMIN_PASSWORD = 'Reiss0707!!';
 
-sessionStorage.clear(); localStorage.clear(); const { createClient } = supabase;
+const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false }
+  auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false, storage: { getItem: () => null, setItem: () => {}, removeItem: () => {} } }
 });
 
 const GENDERS     = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
